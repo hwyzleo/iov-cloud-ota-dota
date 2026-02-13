@@ -85,11 +85,12 @@ public class ConfigWordMptController extends BaseController implements ConfigWor
      */
     @RequiresPermissions("ota:dota:configWord:list")
     @Override
-    @GetMapping(value = "/{configWordCode}/field/list")
-    public TableDataInfo listField(@PathVariable String configWordCode, ConfigWordFieldMpt configWordField) {
-        logger.info("管理后台用户[{}]分页查询配置字[{}]字段", SecurityUtils.getUsername(), configWordCode);
+    @GetMapping(value = "/{configWordCode}/profile/{configWordProfileCode}/field/list")
+    public TableDataInfo listField(@PathVariable String configWordCode, @PathVariable String configWordProfileCode,
+                                   ConfigWordFieldMpt configWordField) {
+        logger.info("管理后台用户[{}]分页查询配置字[{}]下配置文件[{}]字段", SecurityUtils.getUsername(), configWordCode, configWordProfileCode);
         startPage();
-        List<ConfigWordFieldPo> configWordFieldPoList = configWordAppService.searchField(configWordField.getConfigWordCode(),
+        List<ConfigWordFieldPo> configWordFieldPoList = configWordAppService.searchField(configWordCode, configWordProfileCode,
                 configWordField.getCode(), configWordField.getName(), getBeginTime(configWordField), getEndTime(configWordField));
         List<ConfigWordFieldMpt> configWordFieldMptList = ConfigWordFieldMptAssembler.INSTANCE.fromPoList(configWordFieldPoList);
         return getDataTable(configWordFieldPoList, configWordFieldMptList);
@@ -149,10 +150,10 @@ public class ConfigWordMptController extends BaseController implements ConfigWor
      */
     @RequiresPermissions("ota:dota:configWord:query")
     @Override
-    @GetMapping(value = "/{configWordCode}/field/{configWordFieldId}")
-    public AjaxResult getFieldInfo(@PathVariable String configWordCode, @PathVariable Long configWordFieldId) {
-        logger.info("管理后台用户[{}]根据配置字[{}]字段ID[{}]获取配置字字段", SecurityUtils.getUsername(), configWordCode, configWordFieldId);
-        ConfigWordFieldPo configWordFieldPo = configWordAppService.getConfigWordFieldById(configWordCode, configWordFieldId);
+    @GetMapping(value = "/{configWordCode}/profile/{configWordProfileCode}/field/{configWordFieldId}")
+    public AjaxResult getFieldInfo(@PathVariable String configWordCode, @PathVariable String configWordProfileCode, @PathVariable Long configWordFieldId) {
+        logger.info("管理后台用户[{}]根据配置字[{}]配置文件[{}]字段ID[{}]获取配置字字段", SecurityUtils.getUsername(), configWordCode, configWordProfileCode, configWordFieldId);
+        ConfigWordFieldPo configWordFieldPo = configWordAppService.getConfigWordFieldById(configWordCode, configWordProfileCode, configWordFieldId);
         return success(ConfigWordFieldMptAssembler.INSTANCE.fromPo(configWordFieldPo));
     }
 
@@ -207,10 +208,13 @@ public class ConfigWordMptController extends BaseController implements ConfigWor
     @Log(title = "配置字管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("ota:dota:configWord:edit")
     @Override
-    @PostMapping("/{configWordCode}/field")
-    public AjaxResult addField(@PathVariable String configWordCode, @Validated @RequestBody ConfigWordFieldMpt configWordField) {
-        logger.info("管理后台用户[{}]新增配置字[{}]字段[{}]", SecurityUtils.getUsername(), configWordCode, configWordField.getCode());
-        if (!configWordAppService.checkFieldCodeUnique(configWordField.getId(), configWordCode, configWordField.getCode())) {
+    @PostMapping("/{configWordCode}/profile/{configWordProfileCode}/field")
+    public AjaxResult addField(@PathVariable String configWordCode, @PathVariable String configWordProfileCode,
+                               @Validated @RequestBody ConfigWordFieldMpt configWordField) {
+        logger.info("管理后台用户[{}]新增配置字[{}]配置文件[{}]字段[{}]", SecurityUtils.getUsername(), configWordCode,
+                configWordProfileCode, configWordField.getCode());
+        if (!configWordAppService.checkFieldCodeUnique(configWordField.getId(), configWordCode, configWordProfileCode,
+                configWordField.getCode())) {
             return error("新增配置字字段'" + configWordField.getCode() + "'失败，配置字字段代码已存在");
         }
         ConfigWordFieldPo configWordFieldPo = ConfigWordFieldMptAssembler.INSTANCE.toPo(configWordField);
@@ -269,10 +273,13 @@ public class ConfigWordMptController extends BaseController implements ConfigWor
     @Log(title = "配置字管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("ota:dota:configWord:edit")
     @Override
-    @PutMapping("/{configWordCode}/field")
-    public AjaxResult editField(@PathVariable String configWordCode, @Validated @RequestBody ConfigWordFieldMpt configWordField) {
-        logger.info("管理后台用户[{}]修改保存配置字[{}]字段[{}]", SecurityUtils.getUsername(), configWordCode, configWordField.getCode());
-        if (!configWordAppService.checkFieldCodeUnique(configWordField.getId(), configWordCode, configWordField.getCode())) {
+    @PutMapping("/{configWordCode}/profile/{configWordProfileCode}/field")
+    public AjaxResult editField(@PathVariable String configWordCode, @PathVariable String configWordProfileCode,
+                                @Validated @RequestBody ConfigWordFieldMpt configWordField) {
+        logger.info("管理后台用户[{}]修改保存配置字[{}]配置文件[{}]字段[{}]", SecurityUtils.getUsername(), configWordCode,
+                configWordProfileCode, configWordField.getCode());
+        if (!configWordAppService.checkFieldCodeUnique(configWordField.getId(), configWordCode, configWordProfileCode,
+                configWordField.getCode())) {
             return error("修改保存配置字字段'" + configWordField.getCode() + "'失败，配置字字段代码已存在");
         }
         ConfigWordFieldPo configWordFieldPo = ConfigWordFieldMptAssembler.INSTANCE.toPo(configWordField);
@@ -321,9 +328,11 @@ public class ConfigWordMptController extends BaseController implements ConfigWor
     @Log(title = "配置字管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("ota:dota:configWord:edit")
     @Override
-    @DeleteMapping("/{configWordCode}/field/{configWordFieldIds}")
-    public AjaxResult removeField(@PathVariable String configWordCode, @PathVariable Long[] configWordFieldIds) {
-        logger.info("管理后台用户[{}]删除配置字[{}]字段[{}]", SecurityUtils.getUsername(), configWordCode, configWordFieldIds);
-        return toAjax(configWordAppService.deleteConfigWordFieldByIds(configWordCode, configWordFieldIds));
+    @DeleteMapping("/{configWordCode}/profile/{configWordProfileCode}/field/{configWordFieldIds}")
+    public AjaxResult removeField(@PathVariable String configWordCode, @PathVariable String configWordProfileCode,
+                                  @PathVariable Long[] configWordFieldIds) {
+        logger.info("管理后台用户[{}]删除配置字[{}]配置文件[{}]字段[{}]", SecurityUtils.getUsername(), configWordCode,
+                configWordProfileCode, configWordFieldIds);
+        return toAjax(configWordAppService.deleteConfigWordFieldByIds(configWordCode, configWordProfileCode, configWordFieldIds));
     }
 }

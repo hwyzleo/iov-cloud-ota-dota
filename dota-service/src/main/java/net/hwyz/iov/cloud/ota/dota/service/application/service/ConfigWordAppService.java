@@ -74,16 +74,19 @@ public class ConfigWordAppService {
     /**
      * 查询配置字字段
      *
-     * @param configWordCode 配置字代码
-     * @param code           配置字代码
-     * @param name           配置字名称
-     * @param beginTime      开始时间
-     * @param endTime        结束时间
+     * @param configWordCode        配置字代码
+     * @param configWordProfileCode 配置字配置文件代码
+     * @param code                  配置字代码
+     * @param name                  配置字名称
+     * @param beginTime             开始时间
+     * @param endTime               结束时间
      * @return 配置字列表
      */
-    public List<ConfigWordFieldPo> searchField(String configWordCode, String code, String name, Date beginTime, Date endTime) {
+    public List<ConfigWordFieldPo> searchField(String configWordCode, String configWordProfileCode, String code, String name,
+                                               Date beginTime, Date endTime) {
         Map<String, Object> map = new HashMap<>();
         map.put("configWordCode", configWordCode);
+        map.put("configWordProfileCode", configWordProfileCode);
         map.put("code", code);
         map.put("name", ParamHelper.fuzzyQueryParam(name));
         map.put("beginTime", beginTime);
@@ -125,16 +128,17 @@ public class ConfigWordAppService {
     /**
      * 检查配置字字段代码是否唯一
      *
-     * @param configWordFieldId 配置字字段ID
-     * @param configWordCode    配置字代码
-     * @param code              配置字字段代码
+     * @param configWordFieldId     配置字字段ID
+     * @param configWordCode        配置字代码
+     * @param configWordProfileCode 配置字配置文件代码
+     * @param code                  配置字字段代码
      * @return 结果
      */
-    public Boolean checkFieldCodeUnique(Long configWordFieldId, String configWordCode, String code) {
+    public Boolean checkFieldCodeUnique(Long configWordFieldId, String configWordCode, String configWordProfileCode, String code) {
         if (ObjUtil.isNull(configWordFieldId)) {
             configWordFieldId = -1L;
         }
-        ConfigWordFieldPo configWordFieldPo = getConfigWordFieldByCode(configWordCode, code);
+        ConfigWordFieldPo configWordFieldPo = getConfigWordFieldByCode(configWordCode, configWordProfileCode, code);
         return !ObjUtil.isNotNull(configWordFieldPo) || configWordFieldPo.getId().longValue() == configWordFieldId.longValue();
     }
 
@@ -162,11 +166,12 @@ public class ConfigWordAppService {
     /**
      * 根据主键ID获取配置字字段
      *
-     * @param configWordCode 配置字代码
-     * @param id             主键ID
+     * @param configWordCode        配置字代码
+     * @param configWordProfileCode 配置字配置文件代码
+     * @param id                    主键ID
      * @return 配置字字段
      */
-    public ConfigWordFieldPo getConfigWordFieldById(String configWordCode, Long id) {
+    public ConfigWordFieldPo getConfigWordFieldById(String configWordCode, String configWordProfileCode, Long id) {
         return configWordFieldDao.selectPoById(id);
     }
 
@@ -194,12 +199,13 @@ public class ConfigWordAppService {
     /**
      * 根据配置字代码获取配置字
      *
-     * @param configWordCode 配置字代码
-     * @param code           配置字字段代码
+     * @param configWordCode        配置字代码
+     * @param configWordProfileCode 配置字配置文件代码
+     * @param code                  配置字字段代码
      * @return 配置字
      */
-    public ConfigWordFieldPo getConfigWordFieldByCode(String configWordCode, String code) {
-        return configWordFieldDao.selectPoByConfigWordCodeAndCode(configWordCode, code);
+    public ConfigWordFieldPo getConfigWordFieldByCode(String configWordCode, String configWordProfileCode, String code) {
+        return configWordFieldDao.selectPoByCode(configWordCode, configWordProfileCode, code);
     }
 
     /**
@@ -290,11 +296,12 @@ public class ConfigWordAppService {
     /**
      * 批量删除配置字字段
      *
-     * @param configWordCode 配置字代码
-     * @param ids            配置字字段ID数组
+     * @param configWordCode        配置字代码
+     * @param configWordProfileCode 配置字配置文件代码
+     * @param ids                   配置字字段ID数组
      * @return 结果
      */
-    public int deleteConfigWordFieldByIds(String configWordCode, Long[] ids) {
+    public int deleteConfigWordFieldByIds(String configWordCode, String configWordProfileCode, Long[] ids) {
         return configWordFieldDao.batchPhysicalDeletePo(ids);
     }
 

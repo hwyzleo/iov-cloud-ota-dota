@@ -28,6 +28,11 @@ public class ConfigWordFieldMpt extends BaseRequest {
     private String configWordCode;
 
     /**
+     * 配置字配置文件代码
+     */
+    private String configWordProfileCode;
+
+    /**
      * 字段代码
      */
     private String code;

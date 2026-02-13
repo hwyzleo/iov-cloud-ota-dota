@@ -16,12 +16,13 @@ import org.apache.ibatis.annotations.Mapper;
 public interface ConfigWordFieldDao extends BaseDao<ConfigWordFieldPo, Long> {
 
     /**
-     * 根据配置字代码和字段代码查询字段
+     * 根据字段代码查询字段
      *
-     * @param configWordCode 配置字代码
-     * @param code           字段代码
+     * @param configWordCode        配置字代码
+     * @param configWordProfileCode 配置字配置文件代码
+     * @param code                  字段代码
      * @return 字段
      */
-    ConfigWordFieldPo selectPoByConfigWordCodeAndCode(String configWordCode, String code);
+    ConfigWordFieldPo selectPoByCode(String configWordCode, String configWordProfileCode, String code);
 
 }

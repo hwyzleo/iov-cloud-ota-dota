@@ -34,11 +34,12 @@ public interface ConfigWordMptApi {
     /**
      * 分页查询配置字字段
      *
-     * @param configWordCode  配置字代码
-     * @param configWordField 配置字字段
+     * @param configWordCode        配置字代码
+     * @param configWordProfileCode 配置字配置文件代码
+     * @param configWordField       配置字字段
      * @return 配置字字段列表
      */
-    TableDataInfo listField(String configWordCode, ConfigWordFieldMpt configWordField);
+    TableDataInfo listField(String configWordCode, String configWordProfileCode, ConfigWordFieldMpt configWordField);
 
     /**
      * 导出配置字
@@ -68,11 +69,12 @@ public interface ConfigWordMptApi {
     /**
      * 根据配置字字段ID获取配置字字段
      *
-     * @param configWordCode    配置字代码
-     * @param configWordFieldId 配置字字段ID
+     * @param configWordCode        配置字代码
+     * @param configWordProfileCode 配置字配置文件代码
+     * @param configWordFieldId     配置字字段ID
      * @return 配置字字段
      */
-    AjaxResult getFieldInfo(String configWordCode, Long configWordFieldId);
+    AjaxResult getFieldInfo(String configWordCode, String configWordProfileCode, Long configWordFieldId);
 
     /**
      * 新增配置字
@@ -94,11 +96,12 @@ public interface ConfigWordMptApi {
     /**
      * 新增配置字字段
      *
-     * @param configWordCode  配置字代码
-     * @param configWordField 配置字字段
+     * @param configWordCode        配置字代码
+     * @param configWordProfileCode 配置字配置文件代码
+     * @param configWordField       配置字字段
      * @return 结果
      */
-    AjaxResult addField(String configWordCode, ConfigWordFieldMpt configWordField);
+    AjaxResult addField(String configWordCode, String configWordProfileCode, ConfigWordFieldMpt configWordField);
 
     /**
      * 修改保存配置字
@@ -120,11 +123,12 @@ public interface ConfigWordMptApi {
     /**
      * 修改保存配置字字段
      *
-     * @param configWordCode  配置字代码
-     * @param configWordField 配置字字段
+     * @param configWordCode        配置字代码
+     * @param configWordProfileCode 配置字配置文件代码
+     * @param configWordField       配置字字段
      * @return 结果
      */
-    AjaxResult editField(String configWordCode, ConfigWordFieldMpt configWordField);
+    AjaxResult editField(String configWordCode, String configWordProfileCode, ConfigWordFieldMpt configWordField);
 
     /**
      * 删除配置字
@@ -146,10 +150,11 @@ public interface ConfigWordMptApi {
     /**
      * 删除配置字字段
      *
-     * @param configWordCode     配置字代码
-     * @param configWordFieldIds 配置字字段ID数组
+     * @param configWordCode        配置字代码
+     * @param configWordProfileCode 配置字配置文件代码
+     * @param configWordFieldIds    配置字字段ID数组
      * @return 结果
      */
-    AjaxResult removeField(String configWordCode, Long[] configWordFieldIds);
+    AjaxResult removeField(String configWordCode, String configWordProfileCode, Long[] configWordFieldIds);
 
 }

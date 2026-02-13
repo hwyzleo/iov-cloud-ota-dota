@@ -13,6 +13,7 @@
         <result column="row_version" property="rowVersion" />
         <result column="row_valid" property="rowValid" />
         <result column="config_word_code" property="configWordCode" />
+        <result column="config_word_profile_code" property="configWordProfileCode" />
         <result column="code" property="code" />
         <result column="name" property="name" />
         <result column="byte_offset" property="byteOffset" />
@@ -24,18 +25,18 @@
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, config_word_code, code, name, byte_offset, bit_offset, bit_length, value_type, endianness, 
+        id, config_word_code, config_word_profile_code, code, name, byte_offset, bit_offset, bit_length, value_type, endianness,
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_config_word_field (
-            id, config_word_code, code, name, byte_offset, bit_offset, bit_length, value_type, endianness, 
+            id, config_word_code, config_word_profile_code, code, name, byte_offset, bit_offset, bit_length, value_type, endianness,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{configWordCode}, #{code}, #{name}, #{byteOffset}, #{bitOffset}, #{bitLength}, #{valueType}, #{endianness}, 
+            #{id}, #{configWordCode}, #{configWordProfileCode}, #{code}, #{name}, #{byteOffset}, #{bitOffset}, #{bitLength}, #{valueType}, #{endianness},
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -43,13 +44,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_config_word_field (
-            id, config_word_code, code, name, byte_offset, bit_offset, bit_length, value_type, endianness, 
+            id, config_word_code, config_word_profile_code, code, name, byte_offset, bit_offset, bit_length, value_type, endianness,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.configWordCode}, #{item.code}, #{item.name}, #{item.byteOffset}, #{item.bitOffset}, #{item.bitLength}, #{item.valueType}, #{item.endianness}, 
+            #{item.id}, #{item.configWordCode}, #{item.configWordProfileCode}, #{item.code}, #{item.name}, #{item.byteOffset}, #{item.bitOffset}, #{item.bitLength}, #{item.valueType}, #{item.endianness},
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -60,6 +61,9 @@
         UPDATE tb_config_word_field t SET
         <if test="configWordCode != null and configWordCode != ''">
             t.config_word_code = #{configWordCode},
+        </if>
+        <if test="configWordProfileCode != null and configWordProfileCode != ''">
+            t.config_word_profile_code = #{configWordProfileCode},
         </if>
         <if test="code != null and code != ''">
             t.code = #{code},
@@ -136,6 +140,9 @@
         <if test="configWordCode != null and configWordCode != ''">
             AND t.config_word_code = #{configWordCode}
         </if>
+        <if test="configWordProfileCode != null and configWordProfileCode != ''">
+            AND t.config_word_profile_code = #{configWordProfileCode}
+        </if>
         <if test="code != null and code != ''">
             AND t.code = #{code}
         </if>
@@ -187,6 +194,9 @@
         <if test="configWordCode != null and configWordCode != ''">
             AND t.config_word_code = #{configWordCode}
         </if>
+        <if test="configWordProfileCode != null and configWordProfileCode != ''">
+            AND t.config_word_profile_code = #{configWordProfileCode}
+        </if>
         <if test="code != null and code != ''">
             AND t.code = #{code}
         </if>
@@ -196,12 +206,13 @@
         ORDER BY t.id DESC
     </select>
 
-    <!-- 根据配置字代码和字段代码查询字段 -->
-    <select id="selectPoByConfigWordCodeAndCode" parameterType="java.util.Map" resultMap="baseResultMap">
+    <!-- 根据字段代码查询字段 -->
+    <select id="selectPoByCode" parameterType="java.util.Map" resultMap="baseResultMap">
         SELECT <include refid="baseColumnList"/>
         FROM tb_config_word_field t
         WHERE t.row_valid = 1
         AND t.config_word_code = #{configWordCode}
+        AND t.config_word_profile_code = #{configWordProfileCode}
         AND t.code = #{code}
         LIMIT 1
     </select>

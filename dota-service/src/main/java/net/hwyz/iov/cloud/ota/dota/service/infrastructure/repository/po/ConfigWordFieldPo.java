@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
+
 import net.hwyz.iov.cloud.framework.mysql.po.BasePo;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -38,6 +40,12 @@ public class ConfigWordFieldPo extends BasePo {
      */
     @TableField("config_word_code")
     private String configWordCode;
+
+    /**
+     * 配置字配置文件代码
+     */
+    @TableField("config_word_profile_code")
+    private String configWordProfileCode;
 
     /**
      * 字段代码
