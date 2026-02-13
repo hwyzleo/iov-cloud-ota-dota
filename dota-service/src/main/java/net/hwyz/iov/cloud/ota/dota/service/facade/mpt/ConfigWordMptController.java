@@ -12,12 +12,15 @@ import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.ota.dota.api.contract.ConfigWordFieldMpt;
 import net.hwyz.iov.cloud.ota.dota.api.contract.ConfigWordMpt;
+import net.hwyz.iov.cloud.ota.dota.api.contract.ConfigWordProfileMpt;
 import net.hwyz.iov.cloud.ota.dota.api.feign.mpt.ConfigWordMptApi;
 import net.hwyz.iov.cloud.ota.dota.service.application.service.ConfigWordAppService;
 import net.hwyz.iov.cloud.ota.dota.service.facade.assembler.ConfigWordFieldMptAssembler;
 import net.hwyz.iov.cloud.ota.dota.service.facade.assembler.ConfigWordMptAssembler;
+import net.hwyz.iov.cloud.ota.dota.service.facade.assembler.ConfigWordProfileMptAssembler;
 import net.hwyz.iov.cloud.ota.dota.service.infrastructure.repository.po.ConfigWordFieldPo;
 import net.hwyz.iov.cloud.ota.dota.service.infrastructure.repository.po.ConfigWordPo;
+import net.hwyz.iov.cloud.ota.dota.service.infrastructure.repository.po.ConfigWordProfilePo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,6 +55,25 @@ public class ConfigWordMptController extends BaseController implements ConfigWor
                 configWord.getName(), getBeginTime(configWord), getEndTime(configWord));
         List<ConfigWordMpt> configWordMptList = ConfigWordMptAssembler.INSTANCE.fromPoList(configWordPoList);
         return getDataTable(configWordPoList, configWordMptList);
+    }
+
+    /**
+     * 分页查询配置字配置文件
+     *
+     * @param configWordCode    配置字代码
+     * @param configWordProfile 配置字配置文件
+     * @return 配置字配置文件列表
+     */
+    @RequiresPermissions("ota:dota:configWord:list")
+    @Override
+    @GetMapping(value = "/{configWordCode}/profile/list")
+    public TableDataInfo listProfile(@PathVariable String configWordCode, ConfigWordProfileMpt configWordProfile) {
+        logger.info("管理后台用户[{}]分页查询配置字[{}]配置文件", SecurityUtils.getUsername(), configWordCode);
+        startPage();
+        List<ConfigWordProfilePo> configWordProfilePoList = configWordAppService.searchProfile(configWordProfile.getConfigWordCode(),
+                configWordProfile.getCode(), configWordProfile.getName(), getBeginTime(configWordProfile), getEndTime(configWordProfile));
+        List<ConfigWordProfileMpt> configWordProfileMptList = ConfigWordProfileMptAssembler.INSTANCE.fromPoList(configWordProfilePoList);
+        return getDataTable(configWordProfilePoList, configWordProfileMptList);
     }
 
     /**
@@ -103,6 +125,22 @@ public class ConfigWordMptController extends BaseController implements ConfigWor
     }
 
     /**
+     * 根据配置字配置文件ID获取配置字配置文件
+     *
+     * @param configWordCode      配置字代码
+     * @param configWordProfileId 配置字配置文件ID
+     * @return 配置字配置文件
+     */
+    @RequiresPermissions("ota:dota:configWord:query")
+    @Override
+    @GetMapping(value = "/{configWordCode}/profile/{configWordProfileId}")
+    public AjaxResult getProfileInfo(@PathVariable String configWordCode, @PathVariable Long configWordProfileId) {
+        logger.info("管理后台用户[{}]根据配置字[{}]配置文件ID[{}]获取配置字配置文件", SecurityUtils.getUsername(), configWordCode, configWordProfileId);
+        ConfigWordProfilePo configWordProfilePo = configWordAppService.getConfigWordProfileById(configWordCode, configWordProfileId);
+        return success(ConfigWordProfileMptAssembler.INSTANCE.fromPo(configWordProfilePo));
+    }
+
+    /**
      * 根据配置字字段ID获取配置字字段
      *
      * @param configWordCode    配置字代码
@@ -136,6 +174,27 @@ public class ConfigWordMptController extends BaseController implements ConfigWor
         ConfigWordPo configWordPo = ConfigWordMptAssembler.INSTANCE.toPo(configWord);
         configWordPo.setCreateBy(SecurityUtils.getUserId().toString());
         return toAjax(configWordAppService.createConfigWord(configWordPo));
+    }
+
+    /**
+     * 新增配置字配置文件
+     *
+     * @param configWordCode    配置字代码
+     * @param configWordProfile 配置字配置文件
+     * @return 结果
+     */
+    @Log(title = "配置字管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:dota:configWord:edit")
+    @Override
+    @PostMapping("/{configWordCode}/profile")
+    public AjaxResult addProfile(@PathVariable String configWordCode, @Validated @RequestBody ConfigWordProfileMpt configWordProfile) {
+        logger.info("管理后台用户[{}]新增配置字[{}]配置文件[{}]", SecurityUtils.getUsername(), configWordCode, configWordProfile.getCode());
+        if (!configWordAppService.checkProfileCodeUnique(configWordProfile.getId(), configWordCode, configWordProfile.getCode())) {
+            return error("新增配置字配置文件'" + configWordProfile.getCode() + "'失败，配置字配置文件代码已存在");
+        }
+        ConfigWordProfilePo configWordProfilePo = ConfigWordProfileMptAssembler.INSTANCE.toPo(configWordProfile);
+        configWordProfilePo.setCreateBy(SecurityUtils.getUserId().toString());
+        return toAjax(configWordAppService.createConfigWordProfile(configWordCode, configWordProfilePo));
     }
 
     /**
@@ -180,6 +239,27 @@ public class ConfigWordMptController extends BaseController implements ConfigWor
     }
 
     /**
+     * 修改保存配置字配置文件
+     *
+     * @param configWordCode    配置字代码
+     * @param configWordProfile 配置字配置文件
+     * @return 结果
+     */
+    @Log(title = "配置字管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:dota:configWord:edit")
+    @Override
+    @PutMapping("/{configWordCode}/profile")
+    public AjaxResult editProfile(@PathVariable String configWordCode, @Validated @RequestBody ConfigWordProfileMpt configWordProfile) {
+        logger.info("管理后台用户[{}]修改保存配置字[{}]配置文件[{}]", SecurityUtils.getUsername(), configWordCode, configWordProfile.getCode());
+        if (!configWordAppService.checkProfileCodeUnique(configWordProfile.getId(), configWordCode, configWordProfile.getCode())) {
+            return error("修改保存配置字配置文件'" + configWordProfile.getCode() + "'失败，配置字配置文件代码已存在");
+        }
+        ConfigWordProfilePo configWordProfilePo = ConfigWordProfileMptAssembler.INSTANCE.toPo(configWordProfile);
+        configWordProfilePo.setModifyBy(SecurityUtils.getUserId().toString());
+        return toAjax(configWordAppService.modifyConfigWordProfile(configWordCode, configWordProfilePo));
+    }
+
+    /**
      * 修改保存配置字字段
      *
      * @param configWordCode  配置字代码
@@ -213,6 +293,22 @@ public class ConfigWordMptController extends BaseController implements ConfigWor
     public AjaxResult remove(@PathVariable Long[] configWordIds) {
         logger.info("管理后台用户[{}]删除配置字[{}]", SecurityUtils.getUsername(), configWordIds);
         return toAjax(configWordAppService.deleteConfigWordByIds(configWordIds));
+    }
+
+    /**
+     * 删除配置字配置文件
+     *
+     * @param configWordCode       配置字代码
+     * @param configWordProfileIds 配置字配置文件ID数组
+     * @return 结果
+     */
+    @Log(title = "配置字管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:dota:configWord:edit")
+    @Override
+    @DeleteMapping("/{configWordCode}/field/{configWordProfileIds}")
+    public AjaxResult removeProfile(@PathVariable String configWordCode, @PathVariable Long[] configWordProfileIds) {
+        logger.info("管理后台用户[{}]删除配置字[{}]配置文件[{}]", SecurityUtils.getUsername(), configWordCode, configWordProfileIds);
+        return toAjax(configWordAppService.deleteConfigWordProfileByIds(configWordCode, configWordProfileIds));
     }
 
     /**
